@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>9/4 回収マップ</title>
+  <title>9/10 回収マップ</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
   <style>
     html, body { height: 100%; margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif; background:#f2f4f7; }
@@ -17,8 +17,8 @@
       pointer-events:auto;
     }
     .info-panel { flex: 1; padding: 12px 14px; }
-    .title-row { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px; }
-    .title { font-size: 26px; font-weight: 800; line-height:1.1; }
+    .title-row { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:8px; }
+    .title { font-size: 24px; font-weight: 800; line-height:1.1; }
     .sub { font-size: 13px; color:#555; line-height:1.5; }
     .status { margin-top:8px; padding:10px 12px; background:#eef4ff; border-radius:10px; font-size:13px; color:#1d3d7a; }
     .btn-col { display:flex; flex-direction:column; gap:8px; }
@@ -99,8 +99,8 @@
     <div class="panel info-panel" id="infoBox">
       <div class="title-row">
         <div>
-          <div class="title">9/4 回収マップ（9件）</div>
-          <div class="sub">上から順に①〜⑨。番号ピンを最初から表示、GPS付き。番号または一覧から地点へ移動、ナビ開始、回収済み切替ができます。</div>
+          <div class="title">9/10 回収マップ（10件）</div>
+          <div class="sub">上から順に①〜⑩。番号ピンを表示、GPS付き。番号または一覧から地点へ移動、ナビ開始、回収済み切替ができます。</div>
         </div>
         <div class="btn-col">
           <button class="btn btn-blue" onclick="locateUser()">GPS</button>
@@ -126,18 +126,59 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script>
     const spots = [
-      {no:1, name:'金坂（キンジョウ）', address:'熊本市中央区白山2-1-1 白山堂ビル504', lat:32.793244, lon:130.724300},
-      {no:2, name:'本田（ホンダ）', address:'熊本市中央区九品寺2-4-10 グランフォーレ九品寺テラス', lat:32.797571, lon:130.717669},
-      {no:3, name:'林田（ハヤシダ）', address:'熊本市中央区国府本町12-93', lat:32.78495, lon:130.72195},
-      {no:4, name:'柏木（カシワギ）', address:'熊本市中央区渡鹿4-13-51 メイン石井501', lat:32.808253, lon:130.731796},
-      {no:5, name:'丸木（マルキ）', address:'熊本市中央区萩原町9-62 県営萩原団地6棟501号', lat:32.77915, lon:130.70965},
-      {no:6, name:'嶋松（ミネマツ）', address:'熊本市中央区島崎1-21-12 シティハイム草山402', lat:32.806399, lon:130.693008},
-      {no:7, name:'大石（オオイシ）', address:'熊本市中央区米屋町3丁目15-2 エクシーマンション1402号', lat:32.7940418, lon:130.6976481},
-      {no:8, name:'吉村（ヨシムラ）', address:'熊本市中央区水前寺4丁目29-15', lat:32.798178, lon:130.740599},
-      {no:9, name:'坂梨（サカナシ）', address:'熊本市中央区国府本町12-17 西村ビル205', lat:32.78545, lon:130.72115}
-    ];
+  {
+    "no": 1,
+    "name": "下地（シモジ）",
+    "address": "熊本市南区城南町高804"
+  },
+  {
+    "no": 2,
+    "name": "塚田（ツカダ）",
+    "address": "熊本市南区城南町隈庄427-1 グローリーマンション205号室"
+  },
+  {
+    "no": 3,
+    "name": "森田（モリタ）",
+    "address": "熊本市南区城南町坂野2057"
+  },
+  {
+    "no": 4,
+    "name": "安元（ヤスモト）",
+    "address": "熊本市南区城南町隈庄546-1"
+  },
+  {
+    "no": 5,
+    "name": "宮本（ミヤモト）",
+    "address": "熊本市南区城南町下宮地13-35"
+  },
+  {
+    "no": 6,
+    "name": "吉村（ヨシムラ）",
+    "address": "熊本市南区城南町宮地1287-2"
+  },
+  {
+    "no": 7,
+    "name": "前田（マエダ）",
+    "address": "熊本市南区城南町高379"
+  },
+  {
+    "no": 8,
+    "name": "石井（イシイ）",
+    "address": "熊本市南区城南町宮地578-3"
+  },
+  {
+    "no": 9,
+    "name": "山口（ヤマグチ）",
+    "address": "熊本市南区城南町宮地565-34"
+  },
+  {
+    "no": 10,
+    "name": "兵藤（ヒョウドウ）",
+    "address": "熊本市南区城南町隈庄860-2"
+  }
+];
 
-    const map = L.map('map', { zoomControl:true }).setView([32.7900, 130.7250], 13);
+    const map = L.map('map', { zoomControl:true }).setView([32.700, 130.760], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '&copy; OpenStreetMap'
@@ -148,7 +189,7 @@
     const statusBox = document.getElementById('statusBox');
     const drawer = document.getElementById('drawer');
     const overlay = document.getElementById('overlay');
-    const doneKey = 'kumamoto_collection_done_2026_09_04';
+    const doneKey = 'kumamoto_collection_done_2026_09_10';
     let doneState = JSON.parse(localStorage.getItem(doneKey) || '{}');
     let userMarker = null, userCircle = null;
 
@@ -207,7 +248,7 @@
     function centerOn(no) {
       const m = markers[no];
       if (m) {
-        map.setView(m.getLatLng(), 17, {animate:true});
+        map.setView(m.getLatLng(), 18, {animate:true});
         m.openPopup();
       }
     }
@@ -242,54 +283,6 @@
       statusBox.textContent = text || `ピン表示 ${loaded}/${total}件 ・ 回収済み ${done}/${total}件`;
     }
 
-    async function fetchJson(url) {
-      const res = await fetch(url, { headers:{'Accept':'application/json'} });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      return await res.json();
-    }
-
-    function baseAddress(address) {
-      // 建物名・号室をなるべく除いた住所を作る
-      let a = address.trim();
-      if (a.includes(' ')) a = a.split(' ')[0];
-      a = a.replace(/(\d+)号$/, '');
-      return a;
-    }
-
-    async function geocode(address) {
-      const variants = Array.from(new Set([
-        address,
-        '熊本県' + address,
-        baseAddress(address),
-        '熊本県' + baseAddress(address)
-      ]));
-
-      for (const q of variants) {
-        const url = 'https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=jp&q=' + encodeURIComponent(q);
-        try {
-          const data = await fetchJson(url);
-          if (Array.isArray(data) && data.length) {
-            return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon), query: q };
-          }
-        } catch (e) {}
-        await new Promise(r => setTimeout(r, 400));
-      }
-      throw new Error('geocode failed');
-    }
-
-    async function loadPins() {
-      const bounds = [];
-      spots.forEach(spot => {
-        const marker = L.marker([spot.lat, spot.lon], { icon: iconFor(spot.no, !!doneState[spot.no]) }).addTo(map);
-        marker.bindPopup(buildPopup(spot));
-        markers[spot.no] = marker;
-        bounds.push([spot.lat, spot.lon]);
-      });
-      if (bounds.length) map.fitBounds(bounds, { padding:[44,44] });
-      renderList();
-      updateStatus(`全${spots.length}件のピンを表示しました。`);
-    }
-
     function hideInfoBox() {
       document.getElementById('infoBox').style.display = 'none';
     }
@@ -305,13 +298,96 @@
         if (userMarker) map.removeLayer(userMarker);
         if (userCircle) map.removeLayer(userCircle);
         userMarker = L.marker(latlng).addTo(map).bindPopup('現在地').openPopup();
-        userCircle = L.circle(latlng, { radius: pos.coords.accuracy || 30, color:'#1f6fff', fillColor:'#66a2ff', fillOpacity:0.15 }).addTo(map);
+        userCircle = L.circle(latlng, {
+          radius: pos.coords.accuracy || 30,
+          color:'#1f6fff',
+          fillColor:'#66a2ff',
+          fillOpacity:0.15
+        }).addTo(map);
         map.setView(latlng, 15, {animate:true});
         updateStatus();
-      }, (err) => {
+      }, () => {
         alert('現在地を取得できませんでした。位置情報の許可を確認してください。');
         updateStatus();
       }, { enableHighAccuracy:true, timeout:10000, maximumAge:0 });
+    }
+
+    function baseAddress(address) {
+      let a = address.trim();
+      if (a.includes(' ')) a = a.split(' ')[0];
+      a = a.replace(/\d+号室?$/, '');
+      return a;
+    }
+
+    function variants(address) {
+      const base = baseAddress(address);
+      return Array.from(new Set([
+        address,
+        base,
+        '熊本県' + address,
+        '熊本県' + base
+      ]));
+    }
+
+    async function fetchJson(url) {
+      const res = await fetch(url, { headers: { 'Accept':'application/json' } });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return await res.json();
+    }
+
+    async function geocodeWithGSI(query) {
+      const url = 'https://msearch.gsi.go.jp/address-search/AddressSearch?q=' + encodeURIComponent(query);
+      const data = await fetchJson(url);
+      if (Array.isArray(data) && data.length && data[0].geometry && data[0].geometry.coordinates) {
+        const [lon, lat] = data[0].geometry.coordinates;
+        return { lat, lon };
+      }
+      throw new Error('no result');
+    }
+
+    async function geocode(spot) {
+      const tries = variants(spot.address);
+      for (const q of tries) {
+        try {
+          const p = await geocodeWithGSI(q);
+          return p;
+        } catch (e) {}
+        await new Promise(r => setTimeout(r, 250));
+      }
+      throw new Error('geocode failed');
+    }
+
+    async function loadPins() {
+      const bounds = [];
+      let loaded = 0;
+      let failed = 0;
+
+      for (const spot of spots) {
+        updateStatus(`ピン位置を取得中… ${loaded + failed}/${spots.length}`);
+        try {
+          const p = await geocode(spot);
+          spot.lat = p.lat;
+          spot.lon = p.lon;
+
+          const marker = L.marker([spot.lat, spot.lon], { icon: iconFor(spot.no, !!doneState[spot.no]) }).addTo(map);
+          marker.bindPopup(buildPopup(spot));
+          markers[spot.no] = marker;
+          bounds.push([spot.lat, spot.lon]);
+          loaded += 1;
+        } catch (e) {
+          failed += 1;
+          console.error('Geocode failed:', spot.address, e);
+        }
+        await new Promise(r => setTimeout(r, 300));
+      }
+
+      if (bounds.length) map.fitBounds(bounds, { padding:[44,44] });
+      renderList();
+      if (failed === 0) {
+        updateStatus(`全${spots.length}件のピンを表示しました。`);
+      } else {
+        updateStatus(`ピン表示 ${loaded}/${spots.length}件（${failed}件は住所確認が必要です）`);
+      }
     }
 
     renderList();
