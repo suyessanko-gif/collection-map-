@@ -105,6 +105,7 @@
         <div class="btn-col">
           <button class="btn btn-blue" onclick="locateUser()">GPS</button>
           <button class="btn btn-dark" onclick="toggleDrawer(true)">一覧</button>
+          <button class="btn btn-white" onclick="hideInfoBox()">閉じる</button>
         </div>
       </div>
       <div class="status" id="statusBox">ピン位置を読み込み中…</div>
@@ -125,15 +126,15 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script>
     const spots = [
-      {no:1, name:'金坂（キンジョウ）', address:'熊本市中央区白山2-1-1 白山堂ビル504'},
-      {no:2, name:'本田（ホンダ）', address:'熊本市中央区九品寺2-4-10 グランフォーレ九品寺テラス'},
-      {no:3, name:'林田（ハヤシダ）', address:'熊本市中央区国府本町12-93'},
-      {no:4, name:'柏木（カシワギ）', address:'熊本市中央区渡鹿4-13-51 メイン石井501'},
-      {no:5, name:'丸木（マルキ）', address:'熊本市中央区萩原町9-62 県営萩原団地6棟501号'},
-      {no:6, name:'嶋松（ミネマツ）', address:'熊本市中央区島崎1-21-12 シティハイム草山402'},
-      {no:7, name:'大石（オオイシ）', address:'熊本市中央区米屋町3丁目15-2 エクシーマンション1402号'},
-      {no:8, name:'吉村（ヨシムラ）', address:'熊本市中央区水前寺4丁目29-15'},
-      {no:9, name:'坂梨（サカナシ）', address:'熊本市中央区国府本町12-17 西村ビル205'}
+      {no:1, name:'金坂（キンジョウ）', address:'熊本市中央区白山2-1-1 白山堂ビル504', lat:32.793244, lon:130.724300},
+      {no:2, name:'本田（ホンダ）', address:'熊本市中央区九品寺2-4-10 グランフォーレ九品寺テラス', lat:32.797571, lon:130.717669},
+      {no:3, name:'林田（ハヤシダ）', address:'熊本市中央区国府本町12-93', lat:32.78495, lon:130.72195},
+      {no:4, name:'柏木（カシワギ）', address:'熊本市中央区渡鹿4-13-51 メイン石井501', lat:32.808253, lon:130.731796},
+      {no:5, name:'丸木（マルキ）', address:'熊本市中央区萩原町9-62 県営萩原団地6棟501号', lat:32.77915, lon:130.70965},
+      {no:6, name:'嶋松（ミネマツ）', address:'熊本市中央区島崎1-21-12 シティハイム草山402', lat:32.806399, lon:130.693008},
+      {no:7, name:'大石（オオイシ）', address:'熊本市中央区米屋町3丁目15-2 エクシーマンション1402号', lat:32.7940418, lon:130.6976481},
+      {no:8, name:'吉村（ヨシムラ）', address:'熊本市中央区水前寺4丁目29-15', lat:32.798178, lon:130.740599},
+      {no:9, name:'坂梨（サカナシ）', address:'熊本市中央区国府本町12-17 西村ビル205', lat:32.78545, lon:130.72115}
     ];
 
     const map = L.map('map', { zoomControl:true }).setView([32.7900, 130.7250], 13);
@@ -278,34 +279,19 @@
 
     async function loadPins() {
       const bounds = [];
-      let success = 0;
-      const failed = [];
+      spots.forEach(spot => {
+        const marker = L.marker([spot.lat, spot.lon], { icon: iconFor(spot.no, !!doneState[spot.no]) }).addTo(map);
+        marker.bindPopup(buildPopup(spot));
+        markers[spot.no] = marker;
+        bounds.push([spot.lat, spot.lon]);
+      });
+      if (bounds.length) map.fitBounds(bounds, { padding:[44,44] });
+      renderList();
+      updateStatus(`全${spots.length}件のピンを表示しました。`);
+    }
 
-      for (const spot of spots) {
-        updateStatus(`ピン位置を読み込み中… ${spot.no}/${spots.length}`);
-        try {
-          const pos = await geocode(spot.address);
-          const marker = L.marker([pos.lat, pos.lon], { icon: iconFor(spot.no, !!doneState[spot.no]) }).addTo(map);
-          marker.bindPopup(buildPopup(spot));
-          marker.on('click', () => marker.openPopup());
-          markers[spot.no] = marker;
-          bounds.push([pos.lat, pos.lon]);
-          success++;
-        } catch (e) {
-          failed.push(spot.no);
-        }
-        renderList();
-      }
-
-      if (bounds.length) {
-        map.fitBounds(bounds, { padding:[44, 44] });
-      }
-
-      if (failed.length) {
-        updateStatus(`ピン表示 ${success}/${spots.length}件。未表示: ${failed.join(', ')}。一覧からナビは利用できます。`);
-      } else {
-        updateStatus(`全${spots.length}件のピンを表示しました。番号を押すとナビ開始できます。`);
-      }
+    function hideInfoBox() {
+      document.getElementById('infoBox').style.display = 'none';
     }
 
     function locateUser() {
@@ -334,6 +320,7 @@
     window.centerOn = centerOn;
     window.locateUser = locateUser;
     window.toggleDrawer = toggleDrawer;
+    window.hideInfoBox = hideInfoBox;
   </script>
 </body>
 </html>
