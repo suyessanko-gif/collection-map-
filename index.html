@@ -8,37 +8,20 @@
   <style>
     html, body { height: 100%; margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif; background:#f2f4f7; }
     #map { height: 100%; width: 100%; }
-    .topbar {
-      position: fixed; top: 10px; left: 10px; right: 10px; z-index: 1000;
-      display: flex; gap: 8px; align-items: flex-start; pointer-events:none;
-    }
-    .panel {
-      background: rgba(255,255,255,0.96); border-radius: 14px; box-shadow: 0 4px 18px rgba(0,0,0,.18);
-      pointer-events:auto;
-    }
+    .topbar { position: fixed; top: 10px; left: 10px; right: 10px; z-index: 1000; display: flex; gap: 8px; align-items: flex-start; pointer-events:none; }
+    .panel { background: rgba(255,255,255,0.96); border-radius: 14px; box-shadow: 0 4px 18px rgba(0,0,0,.18); pointer-events:auto; }
     .info-panel { flex: 1; padding: 12px 14px; }
     .title-row { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:8px; }
     .title { font-size: 24px; font-weight: 800; line-height:1.1; }
     .sub { font-size: 13px; color:#555; line-height:1.5; }
     .status { margin-top:8px; padding:10px 12px; background:#eef4ff; border-radius:10px; font-size:13px; color:#1d3d7a; }
     .btn-col { display:flex; flex-direction:column; gap:8px; }
-    .btn {
-      border:0; border-radius:12px; padding:12px 14px; font-size:15px; font-weight:700; cursor:pointer;
-      box-shadow: 0 2px 8px rgba(0,0,0,.12);
-    }
+    .btn { border:0; border-radius:12px; padding:12px 14px; font-size:15px; font-weight:700; cursor:pointer; box-shadow: 0 2px 8px rgba(0,0,0,.12); }
     .btn-blue { background:#1f6fff; color:#fff; }
     .btn-dark { background:#4a4a4a; color:#fff; }
     .btn-white { background:#fff; color:#222; }
-    .floating-gps {
-      position: fixed; right: 12px; bottom: 22px; z-index: 1000;
-      background:#1f6fff; color:#fff; border:none; border-radius:28px; padding:16px 18px; font-size:20px; font-weight:800;
-      box-shadow:0 6px 16px rgba(0,0,0,.22); cursor:pointer;
-    }
-    .drawer {
-      position: fixed; top: 0; left: 0; bottom: 0; width: min(88vw, 390px); z-index: 1200;
-      background: #fff; box-shadow: 4px 0 18px rgba(0,0,0,.2); transform: translateX(-105%); transition: transform .25s ease;
-      display:flex; flex-direction:column;
-    }
+    .floating-gps { position: fixed; right: 12px; bottom: 22px; z-index: 1000; background:#1f6fff; color:#fff; border:none; border-radius:28px; padding:16px 18px; font-size:20px; font-weight:800; box-shadow:0 6px 16px rgba(0,0,0,.22); cursor:pointer; }
+    .drawer { position: fixed; top: 0; left: 0; bottom: 0; width: min(88vw, 390px); z-index: 1200; background: #fff; box-shadow: 4px 0 18px rgba(0,0,0,.2); transform: translateX(-105%); transition: transform .25s ease; display:flex; flex-direction:column; }
     .drawer.open { transform: translateX(0); }
     .drawer-header { padding:16px 16px 10px; border-bottom:1px solid #e7e7e7; }
     .drawer-title { font-size:22px; font-weight:800; }
@@ -47,10 +30,7 @@
     .item { border:1px solid #e4e7eb; border-radius:14px; margin-bottom:10px; padding:10px 12px; background:#fff; }
     .item.done { background:#ecfff1; border-color:#87d99a; }
     .item-head { display:flex; align-items:center; gap:10px; }
-    .num-badge {
-      min-width:34px; height:34px; border-radius:50%; background:#e53935; color:#fff; display:flex; align-items:center; justify-content:center;
-      font-weight:800; font-size:16px; box-shadow: inset 0 -2px 0 rgba(0,0,0,.15);
-    }
+    .num-badge { min-width:34px; height:34px; border-radius:50%; background:#e53935; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:16px; box-shadow: inset 0 -2px 0 rgba(0,0,0,.15); }
     .item.done .num-badge { background:#23a559; }
     .item-main { flex:1; }
     .name { font-weight:800; font-size:15px; }
@@ -69,17 +49,11 @@
     .popup-row { display:flex; gap:8px; flex-wrap:wrap; }
     .popup-btn { display:inline-block; background:#1f6fff; color:#fff!important; text-decoration:none; border-radius:10px; padding:8px 10px; font-weight:800; font-size:13px; }
     .popup-btn.gray { background:#555; }
-    @media (max-width: 640px) {
-      .title { font-size: 20px; }
-      .sub { font-size:12px; }
-      .info-panel { padding:10px 12px; }
-      .btn { padding:10px 12px; font-size:14px; }
-    }
+    @media (max-width: 640px) { .title { font-size: 20px; } .sub { font-size:12px; } .info-panel { padding:10px 12px; } .btn { padding:10px 12px; font-size:14px; } }
   </style>
 </head>
 <body>
   <div id="map"></div>
-
   <div class="topbar">
     <div class="panel info-panel" id="infoBox">
       <div class="title-row">
@@ -96,9 +70,7 @@
       <div class="status" id="statusBox">ピン位置を読み込み中…</div>
     </div>
   </div>
-
   <button class="floating-gps" onclick="locateUser()">GPS</button>
-
   <div class="overlay" id="overlay" onclick="toggleDrawer(false)"></div>
   <aside class="drawer" id="drawer">
     <div class="drawer-header">
@@ -107,7 +79,6 @@
     </div>
     <div class="drawer-body" id="listContainer"></div>
   </aside>
-
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script>
     const spots = [
@@ -139,11 +110,11 @@
   {
     "no": 6,
     "name": "椎葉（シイバ）",
-    "address": "熊本市南区城南町碇1016-2"
+    "address": "熊本市南区城南町塚1016-2"
   },
   {
     "no": 7,
-    "name": "三浦（ミウラ）",
+    "name": "三浦（ミウ）",
     "address": "熊本市南区城南町千町2146-6"
   },
   {
@@ -157,84 +128,50 @@
     "address": "熊本市南区城南町高448-2"
   }
 ];
-
-    const map = L.map('map', { zoomControl:true }).setView([32.688, 130.744], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; OpenStreetMap'
-    }).addTo(map);
-
-    const markers = {};
-    const listContainer = document.getElementById('listContainer');
+    const STORAGE_KEY = 'kumamoto_collection_map_0909_done';
+    const map = L.map('map', { zoomControl: true }).setView([32.689, 130.741], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(map);
     const statusBox = document.getElementById('statusBox');
+    const listContainer = document.getElementById('listContainer');
     const drawer = document.getElementById('drawer');
     const overlay = document.getElementById('overlay');
-    const doneKey = 'kumamoto_collection_done_2026_09_09';
-    let doneState = JSON.parse(localStorage.getItem(doneKey) || '{}');
-    let userMarker = null, userCircle = null;
-
-    function googleNavUrl(address) {
-      return 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(address) + '&travelmode=driving';
+    const markers = {};
+    let userMarker = null;
+    let userCircle = null;
+    const doneState = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    function iconFor(no, done=false) {
+      return L.divIcon({
+        className: '',
+        html: `<div class="marker-pin ${done ? 'done' : ''}"><span>${no}</span></div>`,
+        iconSize: [34,34], iconAnchor:[17,34], popupAnchor:[0,-30]
+      });
     }
-    function googleSearchUrl(address) {
-      return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(address);
-    }
-    function markerHtml(no, done) {
-      return `<div class="marker-pin ${done ? 'done':''}"><span>${no}</span></div>`;
-    }
-    function iconFor(no, done) {
-      return L.divIcon({ className: '', html: markerHtml(no, done), iconSize: [34, 34], iconAnchor: [17, 33], popupAnchor: [0, -30] });
-    }
-    function saveDone() { localStorage.setItem(doneKey, JSON.stringify(doneState)); }
-    function toggleDone(no) {
-      doneState[no] = !doneState[no];
-      saveDone();
-      if (markers[no]) markers[no].setIcon(iconFor(no, !!doneState[no]));
-      renderList();
-      if (markers[no]) markers[no].setPopupContent(buildPopup(spots.find(s=>s.no===no)));
-      updateStatus();
-    }
+    function googleNavUrl(address) { return 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(address); }
+    function toggleDrawer(open) { drawer.classList.toggle('open', open); overlay.classList.toggle('show', open); }
     function buildPopup(spot) {
       const done = !!doneState[spot.no];
-      return `
-        <div class="popup-title">${spot.no}. ${spot.name}</div>
-        <div class="popup-addr">${spot.address}</div>
-        <div class="popup-row">
-          <a class="popup-btn" target="_blank" href="${googleNavUrl(spot.address)}">ナビ開始</a>
-          <a class="popup-btn gray" target="_blank" href="${googleSearchUrl(spot.address)}">Googleマップで開く</a>
-          <a class="popup-btn ${done ? 'gray':''}" href="javascript:void(0)" onclick="toggleDone(${spot.no})">${done ? '未回収に戻す':'回収済みにする'}</a>
-        </div>`;
+      return `<div class="popup-title">${spot.no}. ${spot.name}</div><div class="popup-addr">${spot.address}</div><div class="popup-row"><a class="popup-btn" target="_blank" href="${googleNavUrl(spot.address)}">ナビ開始</a><button class="popup-btn gray" onclick="toggleDone(${spot.no})">${done ? '未回収に戻す' : '回収済み'}</button></div>`;
     }
-    function toggleDrawer(show) { drawer.classList.toggle('open', show); overlay.classList.toggle('show', show); }
-    function centerOn(no) { const m = markers[no]; if (m) { map.setView(m.getLatLng(), 18, {animate:true}); m.openPopup(); } }
+    function centerOn(no) { const m = markers[no]; if (!m) return; map.setView(m.getLatLng(), 17, {animate:true}); m.openPopup(); toggleDrawer(false); }
+    function toggleDone(no) {
+      doneState[no] = !doneState[no];
+      if (!doneState[no]) delete doneState[no];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(doneState));
+      const spot = spots.find(s => s.no === no);
+      if (markers[no]) { markers[no].setIcon(iconFor(no, !!doneState[no])); markers[no].setPopupContent(buildPopup(spot)); }
+      renderList(); updateStatus();
+    }
     function renderList() {
       listContainer.innerHTML = '';
       spots.forEach(spot => {
         const done = !!doneState[spot.no];
         const div = document.createElement('div');
         div.className = 'item' + (done ? ' done' : '');
-        div.innerHTML = `
-          <div class="item-head">
-            <div class="num-badge">${spot.no}</div>
-            <div class="item-main">
-              <div class="name">${spot.name}</div>
-              <div class="addr">${spot.address}</div>
-            </div>
-          </div>
-          <div class="controls">
-            <button class="small-btn" onclick="centerOn(${spot.no})">地図で見る</button>
-            <a class="small-btn" style="text-decoration:none" target="_blank" href="${googleNavUrl(spot.address)}">ナビ開始</a>
-            <button class="small-btn donebtn" onclick="toggleDone(${spot.no})">${done ? '未回収に戻す' : '回収済み'}</button>
-          </div>`;
+        div.innerHTML = `<div class="item-head"><div class="num-badge">${spot.no}</div><div class="item-main"><div class="name">${spot.name}</div><div class="addr">${spot.address}</div></div></div><div class="controls"><button class="small-btn" onclick="centerOn(${spot.no})">地図で見る</button><a class="small-btn" style="text-decoration:none" target="_blank" href="${googleNavUrl(spot.address)}">ナビ開始</a><button class="small-btn donebtn" onclick="toggleDone(${spot.no})">${done ? '未回収に戻す' : '回収済み'}</button></div>`;
         listContainer.appendChild(div);
       });
     }
-    function updateStatus(text='') {
-      const total = spots.length;
-      const done = spots.filter(s => !!doneState[s.no]).length;
-      const loaded = Object.keys(markers).length;
-      statusBox.textContent = text || `ピン表示 ${loaded}/${total}件 ・ 回収済み ${done}/${total}件`;
-    }
+    function updateStatus(text='') { const total = spots.length; const done = spots.filter(s => !!doneState[s.no]).length; const loaded = Object.keys(markers).length; statusBox.textContent = text || `ピン表示 ${loaded}/${total}件 ・ 回収済み ${done}/${total}件`; }
     function hideInfoBox() { document.getElementById('infoBox').style.display = 'none'; }
     function locateUser() {
       if (!navigator.geolocation) { alert('この端末ではGPSが使えません。'); return; }
@@ -245,60 +182,23 @@
         if (userCircle) map.removeLayer(userCircle);
         userMarker = L.marker(latlng).addTo(map).bindPopup('現在地').openPopup();
         userCircle = L.circle(latlng, { radius: pos.coords.accuracy || 30, color:'#1f6fff', fillColor:'#66a2ff', fillOpacity:0.15 }).addTo(map);
-        map.setView(latlng, 15, {animate:true});
-        updateStatus();
+        map.setView(latlng, 15, {animate:true}); updateStatus();
       }, () => { alert('現在地を取得できませんでした。位置情報の許可を確認してください。'); updateStatus(); }, { enableHighAccuracy:true, timeout:10000, maximumAge:0 });
     }
-    function baseAddress(address) {
-      let a = address.trim();
-      if (a.includes(' ')) a = a.split(' ')[0];
-      a = a.replace(/\d+号室?$/, '');
-      return a;
-    }
-    function variants(address) {
-      const base = baseAddress(address);
-      return Array.from(new Set([address, base, '熊本県' + address, '熊本県' + base]));
-    }
-    async function fetchJson(url) {
-      const res = await fetch(url, { headers: { 'Accept':'application/json' } });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      return await res.json();
-    }
-    async function geocodeWithGSI(query) {
-      const url = 'https://msearch.gsi.go.jp/address-search/AddressSearch?q=' + encodeURIComponent(query);
-      const data = await fetchJson(url);
-      if (Array.isArray(data) && data.length && data[0].geometry && data[0].geometry.coordinates) {
-        const [lon, lat] = data[0].geometry.coordinates;
-        return { lat, lon };
-      }
-      throw new Error('no result');
-    }
-    async function geocode(spot) {
-      const tries = variants(spot.address);
-      for (const q of tries) {
-        try { return await geocodeWithGSI(q); } catch (e) {}
-        await new Promise(r => setTimeout(r, 250));
-      }
-      throw new Error('geocode failed');
-    }
+    function baseAddress(address) { let a = address.trim(); if (a.includes(' ')) a = a.split(' ')[0]; a = a.replace(/\d+号室?$/, ''); return a; }
+    function variants(address) { const base = baseAddress(address); return Array.from(new Set([address, base, '熊本県' + address, '熊本県' + base])); }
+    async function fetchJson(url) { const res = await fetch(url, { headers: { 'Accept':'application/json' } }); if (!res.ok) throw new Error('HTTP ' + res.status); return await res.json(); }
+    async function geocodeWithGSI(query) { const url = 'https://msearch.gsi.go.jp/address-search/AddressSearch?q=' + encodeURIComponent(query); const data = await fetchJson(url); if (Array.isArray(data) && data.length && data[0].geometry && data[0].geometry.coordinates) { const [lon, lat] = data[0].geometry.coordinates; return { lat, lon }; } throw new Error('no result'); }
+    async function geocode(spot) { const tries = variants(spot.address); for (const q of tries) { try { return await geocodeWithGSI(q); } catch (e) {} await new Promise(r => setTimeout(r, 250)); } throw new Error('geocode failed'); }
     async function loadPins() {
-      const bounds = [];
-      let loaded = 0;
-      let failed = 0;
+      const bounds = []; let loaded = 0; let failed = 0;
       for (const spot of spots) {
         updateStatus(`ピン位置を取得中… ${loaded + failed}/${spots.length}`);
         try {
-          const p = await geocode(spot);
-          spot.lat = p.lat; spot.lon = p.lon;
+          const p = await geocode(spot); spot.lat = p.lat; spot.lon = p.lon;
           const marker = L.marker([spot.lat, spot.lon], { icon: iconFor(spot.no, !!doneState[spot.no]) }).addTo(map);
-          marker.bindPopup(buildPopup(spot));
-          markers[spot.no] = marker;
-          bounds.push([spot.lat, spot.lon]);
-          loaded += 1;
-        } catch (e) {
-          failed += 1;
-          console.error('Geocode failed:', spot.address, e);
-        }
+          marker.bindPopup(buildPopup(spot)); markers[spot.no] = marker; bounds.push([spot.lat, spot.lon]); loaded += 1;
+        } catch (e) { failed += 1; console.error('Geocode failed:', spot.address, e); }
         await new Promise(r => setTimeout(r, 300));
       }
       if (bounds.length) map.fitBounds(bounds, { padding:[44,44] });
@@ -306,13 +206,8 @@
       if (failed === 0) updateStatus(`全${spots.length}件のピンを表示しました。`);
       else updateStatus(`ピン表示 ${loaded}/${spots.length}件（${failed}件は住所確認が必要です）`);
     }
-    renderList();
-    loadPins();
-    window.toggleDone = toggleDone;
-    window.centerOn = centerOn;
-    window.locateUser = locateUser;
-    window.toggleDrawer = toggleDrawer;
-    window.hideInfoBox = hideInfoBox;
+    renderList(); loadPins();
+    window.toggleDone = toggleDone; window.centerOn = centerOn; window.locateUser = locateUser; window.toggleDrawer = toggleDrawer; window.hideInfoBox = hideInfoBox;
   </script>
 </body>
 </html>
