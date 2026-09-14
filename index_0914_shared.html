@@ -202,24 +202,21 @@
     }
 
     async function geocodeAddress(query) {
-      const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=jp&q=${encodeURIComponent(query)}`;
+      const url = `https://msearch.gsi.go.jp/address-search/AddressSearch?q=${encodeURIComponent(query)}`;
       const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
       if (!res.ok) throw new Error('geocode failed');
       const data = await res.json();
-      return data && data.length ? data[0] : null;
+      if (Array.isArray(data) && data.length && data[0].geometry && data[0].geometry.coordinates) {
+        const [lon, lat] = data[0].geometry.coordinates;
+        return { lat: String(lat), lon: String(lon) };
+      }
+      return null;
     }
 
     function fallbackQueries(addr) {
-      const list = [addr, '熊本県熊本市西区 ' + addr.replace(/^熊本市西区/, '').trim()];
+      const list = [addr, '熊本県' + addr];
       // building-name removed fallback
-      const simplified = addr
-        .replace(/\s+/g, ' ')
-        .replace(/\s[^\s]*マンション[^\s]*/g, '')
-        .replace(/\s[^\s]*ステージ[^\s]*/g, '')
-        .replace(/\s[^\s]*カーサ[^\s]*/g, '')
-        .replace(/\s[^\s]*NEXIS[^\s]*/gi, '')
-        .replace(/\s[^\s]*コープ[^\s]*/g, '')
-        .trim();
+      const simplified = addr.split(' ')[0].trim();
       if (!list.includes(simplified)) list.push(simplified);
       return [...new Set(list.map(v => v.trim()).filter(Boolean))];
     }
