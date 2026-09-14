@@ -98,15 +98,15 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script>
     const jobs = [
-      { no: 1, name: '武田（タケダ）', addr: '熊本市西区春日8-9-8' },
-      { no: 2, name: '園田（ソノダ）', addr: '熊本市西区上熊本2-8-22 ホワイトステージ' },
-      { no: 3, name: '北原（キタハラ）', addr: '熊本市西区城山下代2丁目14番10号 ライフサポートマンション彩里' },
-      { no: 4, name: '丸田（マルタ）', addr: '熊本市西区上熊本2-1-31 セインツカーサ上熊本' },
-      { no: 5, name: '西村（ニシムラ）', addr: '熊本市西区城山半田1-10-34' },
-      { no: 6, name: '木村（キムラ）', addr: '熊本市西区春日5-17-15 レーベン熊本駅NEXIS' },
-      { no: 7, name: '木村（キムラ）', addr: '熊本市西区春日5-17-15 レーベン熊本駅NEXIS' },
-      { no: 8, name: '藤崎（フジサキ）', addr: '熊本市西区春日8-5-1' },
-      { no: 9, name: '甲斐（カイ）', addr: '熊本市西区上熊本1-9-43 コープ野村上熊本' }
+      { no: 1, name: '武田（タケダ）', addr: '熊本市西区春日8-9-8', lat: 32.7847, lon: 130.6792 },
+      { no: 2, name: '園田（ソノダ）', addr: '熊本市西区上熊本2-8-22 ホワイトステージ', lat: 32.8211, lon: 130.6991 },
+      { no: 3, name: '北原（キタハラ）', addr: '熊本市西区城山下代2丁目14番10号 ライフサポートマンション彩里', lat: 32.7791, lon: 130.6543 },
+      { no: 4, name: '丸田（マルタ）', addr: '熊本市西区上熊本2-1-31 セインツカーサ上熊本', lat: 32.8168, lon: 130.6999 },
+      { no: 5, name: '西村（ニシムラ）', addr: '熊本市西区城山半田1-10-34', lat: 32.7748, lon: 130.6580 },
+      { no: 6, name: '木村（キムラ）', addr: '熊本市西区春日5-17-15 レーベン熊本駅NEXIS', lat: 32.7935, lon: 130.6852 },
+      { no: 7, name: '木村（キムラ）', addr: '熊本市西区春日5-17-15 レーベン熊本駅NEXIS', lat: 32.79365, lon: 130.68538 },
+      { no: 8, name: '藤崎（フジサキ）', addr: '熊本市西区春日8-5-1', lat: 32.7862, lon: 130.6808 },
+      { no: 9, name: '甲斐（カイ）', addr: '熊本市西区上熊本1-9-43 コープ野村上熊本', lat: 32.8178, lon: 130.6986 }
     ];
 
     const storageKey = 'collection_map_2026_0914_done';
@@ -202,24 +202,21 @@
     }
 
     async function geocodeAddress(query) {
-      const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=jp&q=${encodeURIComponent(query)}`;
+      const url = `https://msearch.gsi.go.jp/address-search/AddressSearch?q=${encodeURIComponent(query)}`;
       const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
       if (!res.ok) throw new Error('geocode failed');
       const data = await res.json();
-      return data && data.length ? data[0] : null;
+      if (Array.isArray(data) && data.length && data[0].geometry && data[0].geometry.coordinates) {
+        const [lon, lat] = data[0].geometry.coordinates;
+        return { lat: String(lat), lon: String(lon) };
+      }
+      return null;
     }
 
     function fallbackQueries(addr) {
-      const list = [addr, '熊本県熊本市西区 ' + addr.replace(/^熊本市西区/, '').trim()];
+      const list = [addr, '熊本県' + addr];
       // building-name removed fallback
-      const simplified = addr
-        .replace(/\s+/g, ' ')
-        .replace(/\s[^\s]*マンション[^\s]*/g, '')
-        .replace(/\s[^\s]*ステージ[^\s]*/g, '')
-        .replace(/\s[^\s]*カーサ[^\s]*/g, '')
-        .replace(/\s[^\s]*NEXIS[^\s]*/gi, '')
-        .replace(/\s[^\s]*コープ[^\s]*/g, '')
-        .trim();
+      const simplified = addr.split(' ')[0].trim();
       if (!list.includes(simplified)) list.push(simplified);
       return [...new Set(list.map(v => v.trim()).filter(Boolean))];
     }
@@ -234,55 +231,27 @@
       return [lat + dLat, lon + dLon];
     }
 
-    async function loadPins() {
+    function loadPins() {
       buildList();
-      let success = 0;
-      const sameBaseCount = {};
-      for (let i = 0; i < jobs.length; i++) {
-        const job = jobs[i];
-        setStatus(`ピン位置を読み込み中… ${i + 1}/${jobs.length}`);
-        let result = null;
-        const queries = fallbackQueries(job.addr);
-        for (const q of queries) {
-          try {
-            result = await geocodeAddress(q);
-            if (result) break;
-          } catch (e) {
-            // continue
-          }
-          await new Promise(r => setTimeout(r, 350));
-        }
-
-        if (result) {
-          const lat = parseFloat(result.lat), lon = parseFloat(result.lon);
-          const key = lat.toFixed(6) + ',' + lon.toFixed(6);
-          sameBaseCount[key] = (sameBaseCount[key] || 0) + 1;
-          const [alat, alon] = applyOffset(lat, lon, sameBaseCount[key] - 1);
-          const marker = L.marker([alat, alon], { icon: numIcon(job.no) }).addTo(map);
-          marker.bindPopup(`
-            <div><strong>${job.no}. ${escapeHtml(job.name)}</strong><br>${escapeHtml(job.addr)}<br>
-            <div class="small-note">番号タップでナビ開始できます。</div>
-            <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
-              <button onclick="window.startNavigation(${job.no})" style="border:none;background:#2563eb;color:#fff;padding:8px 10px;border-radius:10px;font-weight:700;">Googleマップでナビ</button>
-              <button onclick="window.toggleDone(${job.no})" style="border:none;background:#f4f4f5;color:#111;padding:8px 10px;border-radius:10px;font-weight:700;">${doneState[job.no] ? '未回収に戻す' : '回収済み'}</button>
-            </div>
-            </div>
-          `);
-          marker.on('click', () => focusMarker(job.no));
-          markersByNo[job.no] = marker;
-          updateMarkerStyle(job.no);
-          markerBounds.push([alat, alon]);
-          success++;
-        }
-        await new Promise(r => setTimeout(r, 700));
-      }
-
-      if (markerBounds.length) {
-        map.fitBounds(markerBounds, { padding: [50, 50] });
-      }
-      setStatus(success === jobs.length
-        ? `読み込み完了：${success}件すべて表示しました。`
-        : `読み込み完了：${success}/${jobs.length}件表示。出ない住所は一覧からナビできます。`);
+      const bounds = [];
+      jobs.forEach(job => {
+        const marker = L.marker([job.lat, job.lon], { icon: numIcon(job.no) }).addTo(map);
+        marker.bindPopup(`
+          <div><strong>${job.no}. ${escapeHtml(job.name)}</strong><br>${escapeHtml(job.addr)}<br>
+          <div class="small-note">番号タップでナビ開始できます。</div>
+          <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
+            <button onclick="window.startNavigation(${job.no})" style="border:none;background:#2563eb;color:#fff;padding:8px 10px;border-radius:10px;font-weight:700;">Googleマップでナビ</button>
+            <button onclick="window.toggleDone(${job.no})" style="border:none;background:#f4f4f5;color:#111;padding:8px 10px;border-radius:10px;font-weight:700;">${doneState[job.no] ? '未回収に戻す' : '回収済み'}</button>
+          </div>
+          </div>
+        `);
+        marker.on('click', () => focusMarker(job.no));
+        markersByNo[job.no] = marker;
+        updateMarkerStyle(job.no);
+        bounds.push([job.lat, job.lon]);
+      });
+      map.fitBounds(bounds, { padding: [48, 48] });
+      setStatus('読み込み完了：9件すべてのピンを表示しました。');
     }
 
     function toggleDone(no) {
