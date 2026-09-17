@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>9/14 回収マップ（9件）</title>
+  <title>9/17 回収マップ（8件）</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <style>
     html, body { margin:0; padding:0; width:100%; height:100%; font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif; background:#f3f4f6; }
-    #map { position:fixed; inset:0; }
+    #map { position:fixed; inset:0; z-index:1; }
     .panel {
       position:fixed; left:12px; right:12px; top:12px; z-index:1000;
       background:rgba(255,255,255,.96); border-radius:18px; box-shadow:0 8px 24px rgba(0,0,0,.18);
@@ -15,105 +15,130 @@
     }
     .panel h1 { margin:0 0 6px; font-size:19px; line-height:1.35; }
     .desc { margin:0; font-size:12px; line-height:1.55; color:#333; padding-right:136px; }
-    .status {
-      margin-top:10px; background:#eef3ff; color:#234; border-radius:12px; padding:10px 12px; font-size:13px;
-      min-height:20px;
-    }
+    .status { margin-top:10px; background:#eef3ff; color:#234; border-radius:12px; padding:10px 12px; font-size:13px; min-height:20px; }
     .controls { position:fixed; right:12px; top:20px; z-index:1001; display:flex; flex-direction:column; gap:10px; }
-    .btn {
-      border:none; border-radius:16px; padding:0 16px; height:56px; min-width:88px; font-size:17px; font-weight:700;
-      box-shadow:0 8px 20px rgba(0,0,0,.15); cursor:pointer;
-    }
+    .btn { border:none; border-radius:16px; padding:0 16px; height:56px; min-width:88px; font-size:17px; font-weight:700; box-shadow:0 8px 20px rgba(0,0,0,.15); cursor:pointer; }
     .btn-blue { background:#2563eb; color:#fff; }
     .btn-dark { background:#3f3f46; color:#fff; }
     .btn-light { background:#ffffff; color:#111; }
-    .gps-fab {
-      position:fixed; right:16px; bottom:28px; z-index:1001; width:116px; height:78px;
-      border:none; border-radius:24px; background:#2563eb; color:#fff; font-weight:800; font-size:22px;
-      box-shadow:0 10px 24px rgba(37,99,235,.35);
-    }
-    .drawer {
-      position:fixed; left:10px; top:92px; bottom:14px; width:min(420px, calc(100vw - 20px)); z-index:1002;
-      background:rgba(255,255,255,.98); border-radius:18px; box-shadow:0 10px 28px rgba(0,0,0,.18);
-      overflow:hidden; display:none; flex-direction:column;
-    }
+    .gps-fab { position:fixed; right:16px; bottom:28px; z-index:1001; width:116px; height:78px; border:none; border-radius:24px; background:#2563eb; color:#fff; font-weight:800; font-size:22px; box-shadow:0 10px 24px rgba(37,99,235,.35); }
+    .drawer { position:fixed; left:10px; top:92px; bottom:14px; width:min(420px, calc(100vw - 20px)); z-index:1002; background:rgba(255,255,255,.98); border-radius:18px; box-shadow:0 10px 28px rgba(0,0,0,.18); overflow:hidden; display:none; flex-direction:column; }
     .drawer.open { display:flex; }
-    .drawer-header {
-      display:flex; justify-content:space-between; align-items:center; padding:14px 16px; border-bottom:1px solid #e5e7eb;
-      font-weight:800; font-size:18px;
-    }
+    .drawer-header { display:flex; justify-content:space-between; align-items:center; padding:14px 16px; border-bottom:1px solid #e5e7eb; font-weight:800; font-size:18px; }
     .drawer-body { overflow:auto; padding:10px 12px 14px; }
-    .item {
-      display:flex; gap:10px; align-items:flex-start; padding:12px; border:1px solid #e5e7eb; border-radius:14px; margin-bottom:10px; background:#fff;
-    }
-    .item.done { background:#e8f8e8; border-color:#9ed49e; }
-    .num {
-      flex:0 0 38px; width:38px; height:38px; border-radius:999px; background:#dc2626; color:#fff;
-      display:flex; align-items:center; justify-content:center; font-weight:800; font-size:17px; cursor:pointer;
-      border:none;
-    }
-    .txt { flex:1; min-width:0; cursor:pointer; }
-    .name { font-weight:800; font-size:15px; margin-bottom:4px; }
-    .addr { font-size:13px; line-height:1.45; color:#333; word-break:break-all; }
-    .sub { font-size:12px; color:#555; margin-top:6px; }
-    .actions { display:flex; flex-direction:column; gap:8px; }
-    .nav-btn, .done-btn {
-      border:none; border-radius:10px; padding:9px 10px; font-size:12px; font-weight:700; cursor:pointer;
-    }
+    .item { display:flex; gap:10px; align-items:flex-start; padding:12px; border:1px solid #e5e7eb; border-radius:14px; margin-bottom:10px; background:#fff; }
+    .item.done { background:#ecfdf5; border-color:#bbf7d0; }
+    .num { flex:0 0 36px; width:36px; height:36px; border:none; border-radius:999px; background:#dc2626; color:#fff; font-weight:800; font-size:16px; box-shadow:0 4px 10px rgba(0,0,0,.12); }
+    .txt { flex:1; min-width:0; }
+    .name { font-weight:800; font-size:15px; line-height:1.4; margin-bottom:2px; }
+    .addr, .building { font-size:13px; line-height:1.45; color:#222; }
+    .sub { margin-top:4px; font-size:11px; color:#6b7280; }
+    .actions { display:flex; flex-direction:column; gap:6px; margin-left:auto; }
+    .nav-btn, .done-btn { border:none; border-radius:10px; padding:8px 10px; font-weight:700; font-size:12px; cursor:pointer; white-space:nowrap; }
     .nav-btn { background:#2563eb; color:#fff; }
     .done-btn { background:#f4f4f5; color:#111; }
-    .leaflet-popup-content { font-size:13px; line-height:1.5; }
-    .pin-label {
-      background:#dc2626; color:#fff; border:2px solid #fff; border-radius:999px; width:34px; height:34px; display:flex;
-      align-items:center; justify-content:center; font-weight:800; font-size:16px; box-shadow:0 2px 8px rgba(0,0,0,.25);
-    }
-    .small-note { font-size:11px; color:#666; margin-top:4px; }
+    .pin-label { width:34px; height:34px; border-radius:999px; background:#dc2626; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:16px; box-shadow:0 2px 8px rgba(0,0,0,.25); border:2px solid #fff; }
+    .small-note { font-size:11px; color:#6b7280; }
   </style>
 </head>
 <body>
   <div id="map"></div>
 
   <div class="panel" id="infoPanel">
-    <h1>9/14 回収マップ（9件）</h1>
-    <p class="desc">上から順に①〜⑨。番号ピン表示、GPS付き。番号を押すとGoogleマップでナビ開始、本文を押すとその地点へ移動、回収済みで緑色になります。</p>
-    <div class="status" id="status">ピン位置を読み込み中…</div>
+    <h1>9/17 回収マップ（8件）</h1>
+    <p class="desc">上から順に①〜⑧。番号ピンを表示、GPS付き。番号または一覧から地点へ移動、Googleマップでナビ開始、回収済み切替ができます。</p>
+    <div class="status" id="status">地図とピンを読み込み中…</div>
   </div>
 
   <div class="controls">
-    <button class="btn btn-blue" id="gpsTopBtn">GPS</button>
-    <button class="btn btn-dark" id="listBtn">一覧</button>
-    <button class="btn btn-light" id="togglePanelBtn">閉じる</button>
+    <button class="btn btn-blue" id="gpsBtnTop">GPS</button>
+    <button class="btn btn-dark" id="toggleListBtn">一覧</button>
+    <button class="btn btn-light" id="closePanelBtn">閉じる</button>
   </div>
-
-  <button class="gps-fab" id="gpsFab">GPS</button>
 
   <div class="drawer" id="drawer">
     <div class="drawer-header">
-      <span>回収先一覧</span>
-      <button class="btn btn-light" style="height:42px; min-width:72px; font-size:14px; padding:0 12px; box-shadow:none; border:1px solid #e5e7eb;" id="closeDrawerBtn">閉じる</button>
+      <span>一覧を開く</span>
+      <button class="btn btn-light" id="closeDrawerBtn" style="height:42px;min-width:auto;padding:0 14px;">閉じる</button>
     </div>
     <div class="drawer-body" id="list"></div>
   </div>
 
+  <button class="gps-fab" id="gpsBtnBottom">GPS</button>
+
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script>
     const jobs = [
-      { no: 1, name: '武田（タケダ）', addr: '熊本市西区春日8-9-8', lat: 32.7847, lon: 130.6792 },
-      { no: 2, name: '園田（ソノダ）', addr: '熊本市西区上熊本2-8-22 ホワイトステージ', lat: 32.8211, lon: 130.6991 },
-      { no: 3, name: '北原（キタハラ）', addr: '熊本市西区城山下代2丁目14番10号 ライフサポートマンション彩里', lat: 32.7791, lon: 130.6543 },
-      { no: 4, name: '丸田（マルタ）', addr: '熊本市西区上熊本2-1-31 セインツカーサ上熊本', lat: 32.8168, lon: 130.6999 },
-      { no: 5, name: '西村（ニシムラ）', addr: '熊本市西区城山半田1-10-34', lat: 32.7748, lon: 130.6580 },
-      { no: 6, name: '木村（キムラ）', addr: '熊本市西区春日5-17-15 レーベン熊本駅NEXIS', lat: 32.7935, lon: 130.6852 },
-      { no: 7, name: '木村（キムラ）', addr: '熊本市西区春日5-17-15 レーベン熊本駅NEXIS', lat: 32.79365, lon: 130.68538 },
-      { no: 8, name: '藤崎（フジサキ）', addr: '熊本市西区春日8-5-1', lat: 32.7862, lon: 130.6808 },
-      { no: 9, name: '甲斐（カイ）', addr: '熊本市西区上熊本1-9-43 コープ野村上熊本', lat: 32.8178, lon: 130.6986 }
-    ];
-
-    const storageKey = 'collection_map_2026_0914_done';
+  {
+    "no": 1,
+    "name": "竹下（タケシタ）",
+    "addr": "熊本市南区刈草1-1-15",
+    "building": "グランドニューガイア西熊本駅前",
+    "lat": 32.7778,
+    "lon": 130.6677
+  },
+  {
+    "no": 2,
+    "name": "園田（ソノダ）",
+    "addr": "熊本市西区近見6-9-33",
+    "building": "",
+    "lat": 32.7758,
+    "lon": 130.667
+  },
+  {
+    "no": 3,
+    "name": "緒方（オガタ）",
+    "addr": "熊本市西区春日3丁目16-1",
+    "building": "アルファステイツ熊本駅前",
+    "lat": 32.7908,
+    "lon": 130.6877
+  },
+  {
+    "no": 4,
+    "name": "船津（フナツ）",
+    "addr": "熊本市西区近見6-20-35",
+    "building": "道喜ビル",
+    "lat": 32.7742,
+    "lon": 130.6684
+  },
+  {
+    "no": 5,
+    "name": "深水（フカミ）",
+    "addr": "熊本市西区春日5-17-15",
+    "building": "レーベン熊本駅NEXIS",
+    "lat": 32.7935,
+    "lon": 130.6852
+  },
+  {
+    "no": 6,
+    "name": "安部（アベ）",
+    "addr": "熊本市西区二本木2-7-13",
+    "building": "リバーサイド",
+    "lat": 32.7938,
+    "lon": 130.6806
+  },
+  {
+    "no": 7,
+    "name": "杉原（スギハラ）",
+    "addr": "熊本市西区春日7丁目16-52",
+    "building": "CHAINON春日EAST",
+    "lat": 32.7909,
+    "lon": 130.6774
+  },
+  {
+    "no": 8,
+    "name": "渡邉（ワタナベ）",
+    "addr": "熊本市西区二本木1-3-8",
+    "building": "ウッドフォレスト熊本駅前",
+    "lat": 32.7968,
+    "lon": 130.6866
+  }
+];
+    const storageKey = 'collection_map_2026_0917_done';
     const doneState = JSON.parse(localStorage.getItem(storageKey) || '{}');
 
     const map = L.map('map', { zoomControl: true });
-    map.setView([32.8032, 130.6881], 13);
+    map.setView([32.7875, 130.6800], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '&copy; OpenStreetMap'
@@ -123,15 +148,14 @@
     const listEl = document.getElementById('list');
     const drawer = document.getElementById('drawer');
     const infoPanel = document.getElementById('infoPanel');
-    const markerBounds = [];
     const markersByNo = {};
 
     function setStatus(msg) { statusEl.textContent = msg; }
-    function escapeHtml(str) { return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s])); }
-    function numIcon(n) {
+    function escapeHtml(str) { return String(str || '').replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s])); }
+    function numIcon(n, done) {
       return L.divIcon({
         className: '',
-        html: `<div class="pin-label">${n}</div>`,
+        html: `<div class="pin-label" style="background:${done ? '#16a34a' : '#dc2626'}">${n}</div>`,
         iconSize: [34, 34],
         iconAnchor: [17, 17],
         popupAnchor: [0, -16]
@@ -149,6 +173,7 @@
           <div class="txt" data-focus="${job.no}">
             <div class="name">${escapeHtml(job.name)}</div>
             <div class="addr">${escapeHtml(job.addr)}</div>
+            ${job.building ? `<div class="building">${escapeHtml(job.building)}</div>` : ''}
             <div class="sub">番号を押す → ナビ開始 / 本文を押す → 地点へ移動</div>
           </div>
           <div class="actions">
@@ -169,10 +194,7 @@
       }));
       listEl.querySelectorAll('[data-done]').forEach(el => el.addEventListener('click', e => {
         const no = Number(e.currentTarget.getAttribute('data-done'));
-        doneState[no] = !doneState[no];
-        localStorage.setItem(storageKey, JSON.stringify(doneState));
-        buildList();
-        updateMarkerStyle(no);
+        toggleDone(no);
       }));
     }
 
@@ -180,16 +202,20 @@
       const row = document.getElementById(`row-${no}`);
       if (row) row.classList.toggle('done', !!doneState[no]);
       const marker = markersByNo[no];
-      if (marker) {
-        const html = `<div class="pin-label" style="background:${doneState[no] ? '#16a34a' : '#dc2626'}">${no}</div>`;
-        marker.setIcon(L.divIcon({ className:'', html, iconSize:[34,34], iconAnchor:[17,17], popupAnchor:[0,-16] }));
-      }
+      if (marker) marker.setIcon(numIcon(no, !!doneState[no]));
+    }
+
+    function toggleDone(no) {
+      doneState[no] = !doneState[no];
+      localStorage.setItem(storageKey, JSON.stringify(doneState));
+      buildList();
+      updateMarkerStyle(no);
     }
 
     function startNavigation(no) {
       const job = jobs.find(j => j.no === no);
       if (!job) return;
-      const dest = encodeURIComponent(job.addr);
+      const dest = encodeURIComponent(job.addr + (job.building ? ' ' + job.building : ''));
       window.open(`https://www.google.com/maps/dir/?api=1&destination=${dest}&travelmode=driving`, '_blank');
     }
 
@@ -201,106 +227,51 @@
       drawer.classList.remove('open');
     }
 
-    async function geocodeAddress(query) {
-      const url = `https://msearch.gsi.go.jp/address-search/AddressSearch?q=${encodeURIComponent(query)}`;
-      const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
-      if (!res.ok) throw new Error('geocode failed');
-      const data = await res.json();
-      if (Array.isArray(data) && data.length && data[0].geometry && data[0].geometry.coordinates) {
-        const [lon, lat] = data[0].geometry.coordinates;
-        return { lat: String(lat), lon: String(lon) };
-      }
-      return null;
-    }
-
-    function fallbackQueries(addr) {
-      const list = [addr, '熊本県' + addr];
-      // building-name removed fallback
-      const simplified = addr.split(' ')[0].trim();
-      if (!list.includes(simplified)) list.push(simplified);
-      return [...new Set(list.map(v => v.trim()).filter(Boolean))];
-    }
-
-    function applyOffset(lat, lon, indexAtSameSpot) {
-      if (!indexAtSameSpot) return [lat, lon];
-      const angles = [0, 45, 90, 135, 180, 225, 270, 315];
-      const angle = angles[(indexAtSameSpot - 1) % angles.length] * Math.PI / 180;
-      const meters = 18 * Math.ceil(indexAtSameSpot / 8);
-      const dLat = (meters / 111320) * Math.cos(angle);
-      const dLon = (meters / (111320 * Math.cos(lat * Math.PI / 180))) * Math.sin(angle);
-      return [lat + dLat, lon + dLon];
-    }
-
     function loadPins() {
       buildList();
       const bounds = [];
       jobs.forEach(job => {
-        const marker = L.marker([job.lat, job.lon], { icon: numIcon(job.no) }).addTo(map);
+        const marker = L.marker([job.lat, job.lon], { icon: numIcon(job.no, !!doneState[job.no]) }).addTo(map);
         marker.bindPopup(`
-          <div><strong>${job.no}. ${escapeHtml(job.name)}</strong><br>${escapeHtml(job.addr)}<br>
-          <div class="small-note">番号タップでナビ開始できます。</div>
+          <div><strong>${job.no}. ${escapeHtml(job.name)}</strong><br>${escapeHtml(job.addr)}${job.building ? '<br>' + escapeHtml(job.building) : ''}<br>
+          <div class="small-note">番号タップでGoogleマップのナビを開けます。</div>
           <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
             <button onclick="window.startNavigation(${job.no})" style="border:none;background:#2563eb;color:#fff;padding:8px 10px;border-radius:10px;font-weight:700;">Googleマップでナビ</button>
             <button onclick="window.toggleDone(${job.no})" style="border:none;background:#f4f4f5;color:#111;padding:8px 10px;border-radius:10px;font-weight:700;">${doneState[job.no] ? '未回収に戻す' : '回収済み'}</button>
           </div>
           </div>
         `);
-        marker.on('click', () => focusMarker(job.no));
+        marker.on('click', () => marker.openPopup());
         markersByNo[job.no] = marker;
-        updateMarkerStyle(job.no);
         bounds.push([job.lat, job.lon]);
       });
-      map.fitBounds(bounds, { padding: [48, 48] });
-      setStatus('読み込み完了：9件すべてのピンを表示しました。');
+      if (bounds.length) map.fitBounds(bounds, { padding: [48, 48] });
+      setStatus('読み込み完了：8件すべてのピンを表示しました。');
     }
 
-    function toggleDone(no) {
-      doneState[no] = !doneState[no];
-      localStorage.setItem(storageKey, JSON.stringify(doneState));
-      buildList();
-      updateMarkerStyle(no);
-      const marker = markersByNo[no];
-      if (marker) {
-        const job = jobs.find(j => j.no === no);
-        marker.setPopupContent(`
-          <div><strong>${job.no}. ${escapeHtml(job.name)}</strong><br>${escapeHtml(job.addr)}<br>
-          <div class="small-note">番号タップでナビ開始できます。</div>
-          <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
-            <button onclick="window.startNavigation(${job.no})" style="border:none;background:#2563eb;color:#fff;padding:8px 10px;border-radius:10px;font-weight:700;">Googleマップでナビ</button>
-            <button onclick="window.toggleDone(${job.no})" style="border:none;background:#f4f4f5;color:#111;padding:8px 10px;border-radius:10px;font-weight:700;">${doneState[job.no] ? '未回収に戻す' : '回収済み'}</button>
-          </div>
-          </div>
-        `);
-      }
-    }
-
-    async function locateMe() {
+    function locateMe() {
       if (!navigator.geolocation) {
-        alert('この端末ではGPSが使えません。');
+        setStatus('この端末ではGPSが使えません。');
         return;
       }
+      setStatus('現在地を取得中…');
       navigator.geolocation.getCurrentPosition(pos => {
         const lat = pos.coords.latitude;
         const lon = pos.coords.longitude;
-        map.setView([lat, lon], 16, { animate: true });
-        if (window.meMarker) map.removeLayer(window.meMarker);
-        window.meMarker = L.circleMarker([lat, lon], {
-          radius: 10, color:'#2563eb', fillColor:'#60a5fa', fillOpacity:0.95, weight:3
-        }).addTo(map).bindPopup('現在地').openPopup();
+        const me = L.circleMarker([lat, lon], { radius: 9, color: '#2563eb', weight: 3, fillColor: '#60a5fa', fillOpacity: .9 }).addTo(map);
+        me.bindPopup('現在地').openPopup();
+        map.setView([lat, lon], 15, { animate: true });
+        setStatus('現在地を表示しました。');
       }, err => {
-        alert('現在地を取得できませんでした。位置情報の許可を確認してください。');
-      }, { enableHighAccuracy:true, timeout:10000, maximumAge:0 });
+        setStatus('現在地を取得できませんでした。位置情報の許可を確認してください。');
+      }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
     }
 
-    document.getElementById('listBtn').addEventListener('click', () => drawer.classList.add('open'));
+    document.getElementById('toggleListBtn').addEventListener('click', () => drawer.classList.toggle('open'));
     document.getElementById('closeDrawerBtn').addEventListener('click', () => drawer.classList.remove('open'));
-    document.getElementById('togglePanelBtn').addEventListener('click', (e) => {
-      const hidden = infoPanel.style.display === 'none';
-      infoPanel.style.display = hidden ? 'block' : 'none';
-      e.currentTarget.textContent = hidden ? '閉じる' : '開く';
-    });
-    document.getElementById('gpsTopBtn').addEventListener('click', locateMe);
-    document.getElementById('gpsFab').addEventListener('click', locateMe);
+    document.getElementById('closePanelBtn').addEventListener('click', () => { infoPanel.style.display = 'none'; });
+    document.getElementById('gpsBtnTop').addEventListener('click', locateMe);
+    document.getElementById('gpsBtnBottom').addEventListener('click', locateMe);
 
     window.startNavigation = startNavigation;
     window.toggleDone = toggleDone;
