@@ -1,156 +1,88 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>9/21 回収マップ（11件）</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
-html,body,#map{height:100%;margin:0}body{font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;background:#f3f4f6}
-#map{position:fixed;inset:0}
-.panel{position:fixed;z-index:1000;top:10px;left:10px;right:10px;background:rgba(255,255,255,.97);border-radius:16px;box-shadow:0 4px 16px #0003;padding:12px 132px 10px 12px}
-.title{font-weight:900;font-size:20px;line-height:1.2}.sub{font-size:12px;line-height:1.45;color:#444;margin-top:5px}.status{font-size:12px;color:#24406e;background:#eef4ff;border-radius:9px;padding:8px 10px;margin-top:8px}
-.topBtns{position:fixed;z-index:1002;right:18px;top:18px;display:flex;flex-direction:column;gap:8px}
-.btn{border:0;border-radius:12px;padding:10px 14px;font-weight:800;font-size:15px;box-shadow:0 2px 8px #0002}.blue{background:#1677ff;color:#fff}.dark{background:#444;color:#fff}.white{background:#fff;color:#111}
-.gpsFab{position:fixed;right:14px;bottom:22px;z-index:1001;border:0;border-radius:24px;background:#1677ff;color:#fff;font-weight:900;font-size:19px;padding:16px 18px;box-shadow:0 4px 14px #0004}
-.drawer{position:fixed;z-index:1200;left:0;top:0;bottom:0;width:min(90vw,420px);background:#fff;transform:translateX(-105%);transition:.2s;box-shadow:4px 0 18px #0004;display:flex;flex-direction:column}
-.drawer.open{transform:translateX(0)}.drawerHead{padding:14px;border-bottom:1px solid #ddd;display:flex;justify-content:space-between;align-items:center}.drawerHead b{font-size:20px}.list{overflow:auto;padding:10px}
-.item{border:1px solid #ddd;border-radius:12px;padding:10px;margin-bottom:9px;background:#fff}.item.done{background:#ecfff1;border-color:#8bd09b}.row{display:flex;gap:10px;align-items:flex-start}.num{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;flex:0 0 34px;background:#e53935}.num.yellow{background:#f4c20d;color:#111}.main{flex:1;min-width:0}.name{font-weight:850;font-size:15px}.addr{font-size:13px;line-height:1.4;color:#333;margin-top:3px}.building{font-size:12px;color:#666;margin-top:2px}.actions{display:flex;gap:7px;margin-top:8px;flex-wrap:wrap}.small{border:0;border-radius:9px;padding:7px 9px;font-size:12px;font-weight:750}.nav{background:#e8f1ff;color:#075ec8}.doneBtn{background:#e8f7e8;color:#176b17}
-.marker{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:16px;border:2px solid #fff;box-shadow:0 2px 7px #0006;background:#e53935}.marker.yellow{background:#f4c20d;color:#111}.marker.done{background:#23a559;color:#fff}
-.overlay{position:fixed;inset:0;z-index:1100;background:#0004;display:none}.overlay.show{display:block}
-@media(max-width:600px){.panel{padding-right:116px}.title{font-size:18px}.btn{padding:9px 12px;font-size:14px}}
+html,body{height:100%;margin:0;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;background:#e5e7eb;overflow:hidden}
+#map{position:fixed;inset:0;background:#dfe7ee;overflow:hidden;touch-action:none}
+.tile{position:absolute;width:256px;height:256px;user-select:none;-webkit-user-drag:none}
+.marker{position:absolute;z-index:50;width:38px;height:38px;border-radius:50%;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:17px;color:white;background:#dc2626;border:3px solid white;box-shadow:0 3px 10px #0006;cursor:pointer}
+.marker.yellow{background:#facc15;color:#111;border-color:#fff}
+.marker.done{background:#16a34a!important;color:white!important}
+.me{position:absolute;z-index:49;width:18px;height:18px;border-radius:50%;background:#2563eb;border:4px solid white;box-shadow:0 0 0 7px #2563eb44;transform:translate(-50%,-50%)}
+.panel{position:fixed;z-index:1000;top:10px;left:10px;right:10px;background:#fffffff2;border-radius:16px;box-shadow:0 4px 18px #0003;padding:12px 126px 10px 12px}
+.title{font-size:19px;font-weight:900}.sub{font-size:12px;line-height:1.45;color:#444;margin-top:4px}.status{font-size:12px;background:#eef4ff;border-radius:9px;padding:7px 9px;margin-top:8px;color:#1e3a5f}
+.topBtns{position:fixed;z-index:1002;right:18px;top:18px;display:flex;flex-direction:column;gap:8px}.btn{border:0;border-radius:12px;padding:10px 14px;font-weight:800;font-size:15px;box-shadow:0 2px 8px #0002}.blue{background:#1677ff;color:#fff}.dark{background:#444;color:#fff}.white{background:#fff;color:#111}
+.zoom{position:fixed;z-index:1001;left:12px;bottom:22px;display:flex;flex-direction:column}.zoom button{width:48px;height:48px;border:0;background:#fff;font-size:26px;font-weight:800;box-shadow:0 2px 8px #0003}.zoom button:first-child{border-radius:12px 12px 0 0;border-bottom:1px solid #ddd}.zoom button:last-child{border-radius:0 0 12px 12px}
+.gpsFab{position:fixed;right:14px;bottom:22px;z-index:1001;border:0;border-radius:22px;background:#1677ff;color:#fff;font-weight:900;font-size:18px;padding:15px 18px;box-shadow:0 4px 14px #0004}
+.drawer{position:fixed;z-index:1200;left:0;top:0;bottom:0;width:min(92vw,430px);background:#fff;transform:translateX(-105%);transition:.2s;box-shadow:4px 0 18px #0004;display:flex;flex-direction:column}.drawer.open{transform:translateX(0)}
+.overlay{position:fixed;inset:0;background:#0005;z-index:1190;display:none}.overlay.show{display:block}
+.drawerHead{padding:14px;border-bottom:1px solid #ddd;display:flex;justify-content:space-between;align-items:center}.drawerHead b{font-size:19px}.list{overflow:auto;padding:10px}
+.item{border:1px solid #ddd;border-radius:12px;padding:10px;margin-bottom:9px;background:#fff}.item.done{background:#ecfdf5}.row{display:flex;gap:9px;align-items:flex-start}.num{flex:0 0 34px;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;background:#dc2626}.num.yellow{background:#facc15;color:#111}.main{flex:1}.name{font-weight:900;font-size:15px}.addr,.building{font-size:13px;line-height:1.45;margin-top:2px}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}.small{border:0;border-radius:9px;padding:8px 10px;font-size:12px;font-weight:800}.nav{background:#2563eb;color:#fff}.doneBtn{background:#e5e7eb;color:#111}
+.popup{position:fixed;z-index:1100;left:12px;right:12px;bottom:110px;background:#fff;border-radius:16px;padding:13px 14px;box-shadow:0 5px 22px #0005;display:none}.popup.show{display:block}.popup .close{position:absolute;right:10px;top:8px;border:0;background:#eee;border-radius:50%;width:30px;height:30px;font-size:18px}.popup h3{margin:0 35px 5px 0;font-size:17px}.popup p{margin:3px 0;font-size:13px;line-height:1.4}.popup .actions a,.popup .actions button{text-decoration:none}
 </style>
 </head>
 <body>
 <div id="map"></div>
-<div class="panel" id="panel"><div class="title">9/21 回収マップ（11件）</div><div class="sub">上から順に①〜⑪。①〜⑩は赤ピン、⑪西野さんは黄色ピン。GPS・Googleマップナビ・回収済み切替付き。ピンは最初から11件すべて表示します。</div><div class="status" id="status">11件の固定ピンを表示しました。住所位置を自動で微調整中…</div></div>
+<div class="panel" id="panel"><div class="title">9/21 回収マップ（11件）</div><div class="sub">①〜⑩は赤、⑪西野さんは黄色。GPS・Googleマップナビ・回収済み切替付き。</div><div class="status" id="status">11件のピンを固定表示しています。</div></div>
 <div class="topBtns"><button class="btn blue" onclick="locateMe()">GPS</button><button class="btn dark" onclick="openList()">一覧</button><button class="btn white" onclick="hidePanel()">閉じる</button></div>
+<div class="zoom"><button onclick="zoomBy(1)">＋</button><button onclick="zoomBy(-1)">−</button></div>
 <button class="gpsFab" onclick="locateMe()">GPS</button>
 <div class="overlay" id="overlay" onclick="closeList()"></div>
-<aside class="drawer" id="drawer"><div class="drawerHead"><b>回収先一覧</b><button class="btn white" style="box-shadow:none;border:1px solid #ddd" onclick="closeList()">閉じる</button></div><div class="list" id="list"></div></aside>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<div class="drawer" id="drawer"><div class="drawerHead"><b>回収一覧（11件）</b><button class="btn white" onclick="closeList()">閉じる</button></div><div class="list" id="list"></div></div>
+<div class="popup" id="popup"><button class="close" onclick="closePopup()">×</button><div id="popupBody"></div></div>
 <script>
 const jobs=[
-  {
-    "no": 1,
-    "name": "松本（マツモト）",
-    "addr": "熊本市西区小島6-1-16",
-    "building": "",
-    "lat": 32.7708,
-    "lon": 130.6389,
-    "color": "red"
-  },
-  {
-    "no": 2,
-    "name": "江夏（エナツ）",
-    "addr": "熊本市西区池上町524",
-    "building": "池上団地2C-5",
-    "lat": 32.7907,
-    "lon": 130.6698,
-    "color": "red"
-  },
-  {
-    "no": 3,
-    "name": "石村（イシムラ）",
-    "addr": "熊本市西区池田2-4-17",
-    "building": "",
-    "lat": 32.8208,
-    "lon": 130.6924,
-    "color": "red"
-  },
-  {
-    "no": 4,
-    "name": "石村（イシムラ）",
-    "addr": "熊本市西区池田2-4-17",
-    "building": "",
-    "lat": 32.821,
-    "lon": 130.6927,
-    "color": "red"
-  },
-  {
-    "no": 5,
-    "name": "高島（タカシマ）",
-    "addr": "熊本市西区蓮台寺4丁目15-2",
-    "building": "ヴォルフスガルテン熊本駅南A棟",
-    "lat": 32.7814,
-    "lon": 130.6748,
-    "color": "red"
-  },
-  {
-    "no": 6,
-    "name": "水野（ミズノ）",
-    "addr": "熊本市西区春日7-15-50",
-    "building": "春日スカイマンション",
-    "lat": 32.789,
-    "lon": 130.6784,
-    "color": "red"
-  },
-  {
-    "no": 7,
-    "name": "倉谷（クラタニ）",
-    "addr": "熊本市西区上熊本2丁目7-28",
-    "building": "ロマネスク上熊本2",
-    "lat": 32.8174,
-    "lon": 130.6987,
-    "color": "red"
-  },
-  {
-    "no": 8,
-    "name": "南阪（ミナミサカ）",
-    "addr": "熊本市西区戸坂町5-2",
-    "building": "",
-    "lat": 32.8004,
-    "lon": 130.6735,
-    "color": "red"
-  },
-  {
-    "no": 9,
-    "name": "太田（オオタ）",
-    "addr": "熊本市西区横手5-4-5",
-    "building": "アミティエ",
-    "lat": 32.8042,
-    "lon": 130.6842,
-    "color": "red"
-  },
-  {
-    "no": 10,
-    "name": "林田（ハヤシダ）",
-    "addr": "熊本市西区花園5丁目10-3",
-    "building": "井芹団地",
-    "lat": 32.8171,
-    "lon": 130.6908,
-    "color": "red"
-  },
-  {
-    "no": 11,
-    "name": "西野（ニシノ）",
-    "addr": "熊本市西区二本木2-6-1",
-    "building": "エステージア熊本駅前",
-    "lat": 32.794,
-    "lon": 130.684,
-    "color": "yellow"
-  }
+{no:1,name:'松本（マツモト）',addr:'熊本市西区小島6-1-16',building:'',lat:32.7708,lon:130.6352,color:'red'},
+{no:2,name:'江夏（エナツ）',addr:'熊本市西区池上町524',building:'池上団地2C-5-101',lat:32.7885,lon:130.6573,color:'red'},
+{no:3,name:'石村（イシムラ）',addr:'熊本市西区池田2-4-17',building:'',lat:32.8208,lon:130.6924,color:'red'},
+{no:4,name:'石村（イシムラ）',addr:'熊本市西区池田2-4-17',building:'',lat:32.8210,lon:130.6927,color:'red'},
+{no:5,name:'高島（タカシマ）',addr:'熊本市西区蓮台寺4丁目15-2',building:'ヴォルフスガルテン熊本駅南A棟 404号',lat:32.7814,lon:130.6748,color:'red'},
+{no:6,name:'水野（ミズノ）',addr:'熊本市西区春日7-15-50',building:'308',lat:32.7890,lon:130.6784,color:'red'},
+{no:7,name:'倉谷（クラタニ）',addr:'熊本市西区上熊本2丁目7-28',building:'ロマネスク上熊本2 403号',lat:32.8174,lon:130.6987,color:'red'},
+{no:8,name:'南阪（ミナミサカ）',addr:'熊本市西区戸坂町5-2',building:'',lat:32.8004,lon:130.6735,color:'red'},
+{no:9,name:'太田（オオタ）',addr:'熊本市西区横手5-4-5',building:'アミティエ101',lat:32.8042,lon:130.6842,color:'red'},
+{no:10,name:'林田（ハヤシダ）',addr:'熊本市西区花園5丁目10-3',building:'井芹団地 503号',lat:32.8171,lon:130.6908,color:'red'},
+{no:11,name:'西野（ニシノ）',addr:'熊本市西区二本木2-6-1',building:'エステージア熊本駅前',lat:32.7940,lon:130.6840,color:'yellow'}
 ];
-const doneKey='collection_map_2026_0921_done';
+const doneKey='collection_map_2026_0921_v2_done';
 let done=JSON.parse(localStorage.getItem(doneKey)||'{}');
-const map=L.map('map').setView([32.795,130.682],13);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);
-const markers={}; let meMarker=null, meCircle=null;
-function iconFor(j){let cls='marker'+(j.color==='yellow'?' yellow':'')+(done[j.no]?' done':'');return L.divIcon({className:'',html:`<div class="${cls}">${j.no}</div>`,iconSize:[38,38],iconAnchor:[19,19],popupAnchor:[0,-18]})}
+const map=document.getElementById('map');
+let zoom=13, center={lat:32.795,lon:130.678}, tileEls=[], markerEls={}, meEl=null;
+function worldPx(lat,lon,z){const n=2**z;const x=(lon+180)/360*n*256;const s=Math.sin(lat*Math.PI/180);const y=(0.5-Math.log((1+s)/(1-s))/(4*Math.PI))*n*256;return{x,y}}
+function pxWorld(x,y,z){const n=2**z;const lon=x/(n*256)*360-180;const yy=0.5-y/(n*256);const lat=90-360*Math.atan(Math.exp(-yy*2*Math.PI))/Math.PI;return{lat,lon}}
+function render(){
+  const w=innerWidth,h=innerHeight,c=worldPx(center.lat,center.lon,zoom);const left=c.x-w/2,top=c.y-h/2;
+  tileEls.forEach(e=>e.remove());tileEls=[];
+  const tx0=Math.floor(left/256)-1,tx1=Math.floor((left+w)/256)+1,ty0=Math.floor(top/256)-1,ty1=Math.floor((top+h)/256)+1;
+  const n=2**zoom;
+  for(let ty=ty0;ty<=ty1;ty++)for(let tx=tx0;tx<=tx1;tx++){
+    if(ty<0||ty>=n)continue;const wrap=((tx%n)+n)%n;const img=document.createElement('img');img.className='tile';img.draggable=false;img.src=`https://tile.openstreetmap.org/${zoom}/${wrap}/${ty}.png`;img.style.left=(tx*256-left)+'px';img.style.top=(ty*256-top)+'px';map.appendChild(img);tileEls.push(img)
+  }
+  jobs.forEach(j=>{let el=markerEls[j.no];if(!el){el=document.createElement('div');el.className='marker'+(j.color==='yellow'?' yellow':'');el.textContent=j.no;el.onclick=()=>openPopup(j.no);map.appendChild(el);markerEls[j.no]=el}el.className='marker'+(j.color==='yellow'?' yellow':'')+(done[j.no]?' done':'');const p=worldPx(j.lat,j.lon,zoom);el.style.left=(p.x-left)+'px';el.style.top=(p.y-top)+'px'});
+  if(meEl&&meEl.dataset.lat){const p=worldPx(+meEl.dataset.lat,+meEl.dataset.lon,zoom);meEl.style.left=(p.x-left)+'px';meEl.style.top=(p.y-top)+'px'}
+}
+function fitAll(){let minLat=90,maxLat=-90,minLon=180,maxLon=-180;jobs.forEach(j=>{minLat=Math.min(minLat,j.lat);maxLat=Math.max(maxLat,j.lat);minLon=Math.min(minLon,j.lon);maxLon=Math.max(maxLon,j.lon)});center={lat:(minLat+maxLat)/2,lon:(minLon+maxLon)/2};zoom=12;render()}
+function zoomBy(d){zoom=Math.max(10,Math.min(18,zoom+d));render()}
+let drag=false,sx=0,sy=0,startCenter=null;
+map.addEventListener('pointerdown',e=>{drag=true;sx=e.clientX;sy=e.clientY;startCenter={...center};map.setPointerCapture(e.pointerId)});
+map.addEventListener('pointermove',e=>{if(!drag)return;const c=worldPx(startCenter.lat,startCenter.lon,zoom);const p=pxWorld(c.x-(e.clientX-sx),c.y-(e.clientY-sy),zoom);center=p;render()});
+map.addEventListener('pointerup',()=>drag=false);map.addEventListener('pointercancel',()=>drag=false);
 function fullAddr(j){return j.addr+(j.building?' '+j.building:'')}
 function navUrl(j){return 'https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(fullAddr(j))+'&travelmode=driving'}
-function popup(j){return `<b>${j.no}. ${j.name}</b><br>${j.addr}${j.building?'<br>'+j.building:''}<br><br><a href="${navUrl(j)}" target="_blank">Googleマップでナビ</a><br><br><button onclick="toggleDone(${j.no})">${done[j.no]?'未回収に戻す':'回収済み'}</button>`}
-function addFixedPins(){const b=[];jobs.forEach(j=>{const m=L.marker([j.lat,j.lon],{icon:iconFor(j)}).addTo(map).bindPopup(popup(j));markers[j.no]=m;b.push([j.lat,j.lon]);});map.fitBounds(b,{padding:[45,45]})}
-function renderList(){const el=document.getElementById('list');el.innerHTML='';jobs.forEach(j=>{const d=document.createElement('div');d.className='item'+(done[j.no]?' done':'');d.innerHTML=`<div class="row"><div class="num ${j.color==='yellow'?'yellow':''}">${j.no}</div><div class="main"><div class="name">${j.name}</div><div class="addr">${j.addr}</div>${j.building?`<div class="building">${j.building}</div>`:''}<div class="actions"><button class="small nav" onclick="focusPin(${j.no})">地図で見る</button><a class="small nav" style="text-decoration:none" target="_blank" href="${navUrl(j)}">ナビ開始</a><button class="small doneBtn" onclick="toggleDone(${j.no})">${done[j.no]?'未回収に戻す':'回収済み'}</button></div></div></div>`;el.appendChild(d)})}
-window.focusPin=n=>{const m=markers[n];if(m){map.setView(m.getLatLng(),17,{animate:true});m.openPopup();closeList()}};
-window.toggleDone=n=>{done[n]=!done[n];localStorage.setItem(doneKey,JSON.stringify(done));const j=jobs.find(x=>x.no===n);markers[n].setIcon(iconFor(j));markers[n].setPopupContent(popup(j));renderList()};
-window.openList=()=>{document.getElementById('drawer').classList.add('open');document.getElementById('overlay').classList.add('show')};
-window.closeList=()=>{document.getElementById('drawer').classList.remove('open');document.getElementById('overlay').classList.remove('show')};
-window.hidePanel=()=>document.getElementById('panel').style.display='none';
-window.locateMe=()=>{if(!navigator.geolocation)return alert('この端末ではGPSが使えません');navigator.geolocation.getCurrentPosition(p=>{const ll=[p.coords.latitude,p.coords.longitude];if(meMarker)map.removeLayer(meMarker);if(meCircle)map.removeLayer(meCircle);meMarker=L.marker(ll).addTo(map).bindPopup('現在地').openPopup();meCircle=L.circle(ll,{radius:p.coords.accuracy||30,color:'#1677ff',fillColor:'#66a2ff',fillOpacity:.15}).addTo(map);map.setView(ll,16)},()=>alert('現在地を取得できませんでした。位置情報の許可を確認してください。'),{enableHighAccuracy:true,timeout:10000,maximumAge:0})};
-async function gsi(q){const r=await fetch('https://msearch.gsi.go.jp/address-search/AddressSearch?q='+encodeURIComponent(q));if(!r.ok)throw 0;const a=await r.json();if(a&&a[0]&&a[0].geometry&&a[0].geometry.coordinates){const [lon,lat]=a[0].geometry.coordinates;return [lat,lon]}throw 0}
-async function refine(){let ok=0;for(const j of jobs){try{const ll=await gsi(j.addr);if(ll){// duplicate address 3/4: keep both visible with slight offset
-let lat=ll[0],lon=ll[1];if(j.no===4){lat+=0.00012;lon+=0.00012}markers[j.no].setLatLng([lat,lon]);j.lat=lat;j.lon=lon;ok++;}}catch(e){}await new Promise(r=>setTimeout(r,180))}const b=jobs.map(j=>[j.lat,j.lon]);map.fitBounds(b,{padding:[45,45]});document.getElementById('status').textContent=`11件すべて表示中。住所位置を自動確認できたのは ${ok}/11件です。`;}
-addFixedPins();renderList();refine();
+function openPopup(no){const j=jobs.find(x=>x.no===no);if(!j)return;document.getElementById('popupBody').innerHTML=`<h3>${j.no}. ${j.name}</h3><p>${j.addr}</p>${j.building?`<p>${j.building}</p>`:''}<div class="actions"><a class="small nav" target="_blank" href="${navUrl(j)}">Googleマップでナビ</a><button class="small doneBtn" onclick="toggleDone(${j.no})">${done[j.no]?'未回収に戻す':'回収済み'}</button></div>`;document.getElementById('popup').classList.add('show')}
+function closePopup(){document.getElementById('popup').classList.remove('show')}
+function renderList(){const el=document.getElementById('list');el.innerHTML='';jobs.forEach(j=>{const d=document.createElement('div');d.className='item'+(done[j.no]?' done':'');d.innerHTML=`<div class="row"><div class="num ${j.color==='yellow'?'yellow':''}">${j.no}</div><div class="main"><div class="name">${j.name}</div><div class="addr">${j.addr}</div>${j.building?`<div class="building">${j.building}</div>`:''}<div class="actions"><button class="small nav" onclick="focusPin(${j.no})">地図で見る</button><a class="small nav" target="_blank" href="${navUrl(j)}">ナビ開始</a><button class="small doneBtn" onclick="toggleDone(${j.no})">${done[j.no]?'未回収に戻す':'回収済み'}</button></div></div></div>`;el.appendChild(d)})}
+function focusPin(no){const j=jobs.find(x=>x.no===no);if(!j)return;center={lat:j.lat,lon:j.lon};zoom=17;render();closeList();openPopup(no)}
+function toggleDone(no){done[no]=!done[no];localStorage.setItem(doneKey,JSON.stringify(done));render();renderList();openPopup(no)}
+function openList(){document.getElementById('drawer').classList.add('open');document.getElementById('overlay').classList.add('show')}
+function closeList(){document.getElementById('drawer').classList.remove('open');document.getElementById('overlay').classList.remove('show')}
+function hidePanel(){document.getElementById('panel').style.display='none'}
+function locateMe(){if(!navigator.geolocation){alert('この端末ではGPSが使えません');return}document.getElementById('status').textContent='現在地を取得中…';navigator.geolocation.getCurrentPosition(p=>{const lat=p.coords.latitude,lon=p.coords.longitude;if(!meEl){meEl=document.createElement('div');meEl.className='me';map.appendChild(meEl)}meEl.dataset.lat=lat;meEl.dataset.lon=lon;center={lat,lon};zoom=16;render();document.getElementById('status').textContent='現在地を表示しました。11件のピンも保持されています。'},()=>{document.getElementById('status').textContent='現在地を取得できませんでした。位置情報の許可を確認してください。'},{enableHighAccuracy:true,timeout:10000,maximumAge:0})}
+async function refinePositions(){let ok=0;for(const j of jobs){try{const r=await fetch('https://msearch.gsi.go.jp/address-search/AddressSearch?q='+encodeURIComponent(j.addr));if(!r.ok)continue;const a=await r.json();if(a&&a[0]&&a[0].geometry&&a[0].geometry.coordinates){let [lon,lat]=a[0].geometry.coordinates;if(j.no===4){lat+=0.00013;lon+=0.00013}j.lat=lat;j.lon=lon;ok++;render()}}catch(e){}await new Promise(r=>setTimeout(r,120))}document.getElementById('status').textContent=`11件のピンを表示中。住所位置の自動照合 ${ok}/11件。`;fitAll()}
+window.addEventListener('resize',render);renderList();fitAll();refinePositions();
 </script>
-</body></html>
+</body>
+</html>
